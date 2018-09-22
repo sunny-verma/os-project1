@@ -30,6 +30,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "processor_container.h"
+
 #include <asm/uaccess.h>
 #include <linux/slab.h>
 #include <linux/kernel.h>
@@ -43,19 +44,7 @@
 #include <linux/mutex.h>
 #include <linux/sched.h>
 #include <linux/kthread.h>
-
-
-struct containers_t{
- __u64 cid;
- __u64 no_of_container;
- //queue
-}containers;
-
-static DEFINE_MUTEX(between_thread);
-//mutex_lock(&between_thread);
-//mutex_unlock(&between_thread);
-
-
+#define KERN_SOH "\001"
 /**
  * Delete the task in the container.
  * 
@@ -67,11 +56,12 @@ int processor_container_delete(struct processor_container_cmd __user *user_cmd)
     struct processor_container_cmd *k_cmd=kmalloc(sizeof(struct processor_container_cmd),GFP_KERNEL);
     printk(KERN_INFO "processor_container_delete\n");
     copy_from_user(k_cmd, user_cmd,sizeof(struct processor_container_cmd));
-    printk(KERN_INFO "Container Id: %llu and thread id is %i \n", k_cmd->cid, current->pid);
+    printk(KERN_INFO "Container Id: %llu\n", k_cmd->cid);
     kfree(k_cmd);
-    mutex_lock(&between_thread);
-    mutex_unlock(&between_thread);
 
+    struct task_struct *me = kmalloc(sizeof( struct task_struct),GFP_KERNEL);
+    me = get_current();
+    printk(KERN_SOH "Content of strucutre %s", me);
     return 0;
 }
 
@@ -88,10 +78,8 @@ int processor_container_create(struct processor_container_cmd __user *user_cmd)
     struct processor_container_cmd *k_cmd=kmalloc(sizeof(struct processor_container_cmd),GFP_KERNEL);
     printk(KERN_INFO "processor_container_create\n");
     copy_from_user(k_cmd, user_cmd,sizeof(struct processor_container_cmd));
-    printk(KERN_INFO "Container Id: %llu and TID: is %i \n", k_cmd->cid, current->pid);
+    printk(KERN_INFO "Container Id: %llu\n", k_cmd->cid);
     kfree(k_cmd);
-    mutex_lock(&between_thread);
-    mutex_unlock(&between_thread);
     return 0;
 }
 
@@ -106,11 +94,8 @@ int processor_container_switch(struct processor_container_cmd __user *user_cmd)
     struct processor_container_cmd *k_cmd=kmalloc(sizeof(struct processor_container_cmd),GFP_KERNEL);
     printk(KERN_INFO "processor_container_switch\n");
     copy_from_user(k_cmd, user_cmd,sizeof(struct processor_container_cmd));
-    printk(KERN_INFO "Container Id: %llu and TID: is %i \n", k_cmd->cid, current->pid);
+    printk(KERN_INFO "Container Id: %llu\n", k_cmd->cid);
     kfree(k_cmd);
-    mutex_lock(&between_thread);
-    mutex_unlock(&between_thread);
- 
     return 0;
 }
 
